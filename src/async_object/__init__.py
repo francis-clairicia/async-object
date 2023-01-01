@@ -28,6 +28,15 @@ from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar
 
 
+def _validate_constructor(func: Any, name: str) -> None:
+    if isinstance(func, (staticmethod, classmethod)):
+        func = func.__func__
+    elif isinstance(func, partialmethod):
+        func = func.func
+    if not inspect.iscoroutinefunction(func):
+        raise TypeError(f"{name!r} must be a coroutine function (using 'async def')")
+
+
 class AsyncObjectMeta(type):
     if TYPE_CHECKING:
         __Self = TypeVar("__Self", bound="AsyncObjectMeta")
@@ -38,12 +47,7 @@ class AsyncObjectMeta(type):
                 func = namespace[attr]
             except KeyError:
                 continue
-            if isinstance(func, (staticmethod, classmethod)):
-                func = func.__func__
-            elif isinstance(func, partialmethod):
-                func = func.func
-            if not inspect.iscoroutinefunction(func):
-                raise TypeError(f"{attr!r} must be a coroutine function (using 'async def')")
+            _validate_constructor(func, attr)
 
         try:
             absolute_base_class = AsyncObject
@@ -66,8 +70,7 @@ class AsyncObjectMeta(type):
         if name == "__await__":
             raise TypeError("__await__() cannot be overriden")
         if name in {"__new__", "__init__"}:
-            if not inspect.iscoroutinefunction(value):
-                raise TypeError(f"{name!r} must be a coroutine function (using 'async def')")
+            _validate_constructor(value, name)
         return super().__setattr__(name, value)
 
     def __delattr__(cls, name: str, /) -> None:
