@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import abc
+import inspect
 from typing import Any, Generator
 
 import pytest
 
-from async_object import AsyncObject, AsyncObjectMeta
+from async_object import AsyncABC, AsyncABCMeta, AsyncObject, AsyncObjectMeta
 
 
 def test_no_base_class() -> None:
@@ -112,3 +114,55 @@ def test_delattr_something_else() -> None:
     delattr(MyObject, "_custom_attr")
 
     assert not hasattr(MyObject, "_custom_attr")
+
+
+@pytest.mark.asyncio
+async def test_abc_meta() -> None:
+    class AbstractAsyncObject(AsyncObject, metaclass=AsyncABCMeta):
+        @abc.abstractmethod
+        def method(self) -> None:
+            pass
+
+        @abc.abstractmethod
+        async def async_method(self) -> None:
+            pass
+
+    assert inspect.isabstract(AbstractAsyncObject)
+    assert AbstractAsyncObject.__abstractmethods__ == frozenset({"method", "async_method"})
+
+    class AsyncObjectImpl(AbstractAsyncObject):
+        def method(self) -> None:
+            pass
+
+        async def async_method(self) -> None:
+            pass
+
+    instance = await AsyncObjectImpl()
+
+    assert isinstance(instance, AsyncObjectImpl)
+
+
+@pytest.mark.asyncio
+async def test_abc_base_class_shorthand() -> None:
+    class AbstractAsyncObject(AsyncABC):
+        @abc.abstractmethod
+        def method(self) -> None:
+            pass
+
+        @abc.abstractmethod
+        async def async_method(self) -> None:
+            pass
+
+    assert inspect.isabstract(AbstractAsyncObject)
+    assert AbstractAsyncObject.__abstractmethods__ == frozenset({"method", "async_method"})
+
+    class AsyncObjectImpl(AbstractAsyncObject):
+        def method(self) -> None:
+            pass
+
+        async def async_method(self) -> None:
+            pass
+
+    instance = await AsyncObjectImpl()
+
+    assert isinstance(instance, AsyncObjectImpl)

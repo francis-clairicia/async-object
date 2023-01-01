@@ -9,7 +9,7 @@ async-object defines an AsyncObject base class which uses async constructors.
 
 from __future__ import annotations
 
-__all__ = ["AsyncObject", "AsyncObjectMeta"]
+__all__ = ["AsyncABC", "AsyncABCMeta", "AsyncObject", "AsyncObjectMeta"]
 
 __author__ = "FrankySnow9"
 __contact__ = "clairicia.rcj.francis@gmail.com"
@@ -22,6 +22,7 @@ __maintainer__ = "FrankySnow9"
 __status__ = "Production"
 __version__ = "1.0.0"
 
+import abc
 import inspect
 from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar
@@ -106,3 +107,11 @@ class AsyncObject(metaclass=AsyncObjectMeta):
         # 'await instanciated object'
         def __await__(self: __Self) -> Generator[Any, None, __Self]:
             ...
+
+
+class AsyncABCMeta(AsyncObjectMeta, abc.ABCMeta):
+    pass
+
+
+class AsyncABC(AsyncObject, metaclass=AsyncABCMeta):
+    __slots__ = ()
