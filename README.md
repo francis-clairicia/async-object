@@ -59,11 +59,28 @@ class MyObject(MyAbstractObject):
         pass
 ```
 
+N.B.: There is a shorthand `AsyncABC` like `abc.ABC`.
+```py
+import abc
+
+from async_object import AsyncABC
+
+
+class MyAbstractObject(AsyncABC):
+    @abc.abstractmethod
+    def method(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def async_method(self) -> None:
+        raise NotImplementedError
+```
+
 ## Troubleshoots
 
 ### Static type checking
 
-Static type checker like `mypy` does not like having `async def` for `__new__` and `__init__`. You can use `# type: ignore[misc]` comment to mask these errors when overriding these methods.
+Static type checkers like `mypy` do not like having `async def` for `__new__` and `__init__`. You can use `# type: ignore[misc]` comment to mask these errors when overriding these methods.
 ```py
 class MyObject(AsyncObject):
     async def __new__(cls) -> "MyObject":  # type: ignore[misc]
