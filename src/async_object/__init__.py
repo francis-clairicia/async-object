@@ -82,7 +82,9 @@ class AsyncObjectMeta(type):
             self = await cls_new(cls)
         else:
             self = await cls_new(cls, *args, **kwargs)
-        await type(self).__init__(self, *args, **kwargs)
+        cls_init = type(self).__init__
+        if cls_init is not AsyncObject.__init__ or cls_new is AsyncObject.__new__:
+            await cls_init(self, *args, **kwargs)
         return self
 
 

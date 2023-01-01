@@ -51,6 +51,25 @@ async def test_subclass_with_arguments() -> None:
     assert instance.myattr_from_init == 123456789
 
 
+async def test_subclass_with_arguments_for_dunder_new() -> None:
+    # Arrange
+
+    class MyObject(AsyncObject):
+        myattr_from_new: int
+
+        async def __new__(cls, value: int) -> MyObject:  # type: ignore[misc]
+            self = await super().__new__(cls)
+            self.myattr_from_new = value
+            return self
+
+    # Act
+    instance: MyObject = await MyObject(value=123456789)
+
+    # Assert
+    assert isinstance(instance, MyObject)
+    assert instance.myattr_from_new == 123456789
+
+
 async def test_subclass_with_custom_dunder_new() -> None:
     # Arrange
 
