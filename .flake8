@@ -1,0 +1,20 @@
+
+
+[flake8]
+extend-exclude =
+    .mypy_cache,
+    .pytest_cache,
+    .venv,
+    .vscode,
+    devtools,
+    dist,
+    site-packages
+doctest = true
+max-line-length = 130
+extend-ignore =
+    # E203: whitespace before ':' (Thanks black)
+    E203
+    # E266: too many leading '#' for block comment
+    E266
+    # E501: line too long (already have black for that)
+    E501
