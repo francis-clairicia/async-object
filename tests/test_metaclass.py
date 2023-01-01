@@ -36,6 +36,14 @@ def test_dunder_init_not_a_coroutine_function() -> None:
                 ...
 
 
+def test_dunder_new_not_a_coroutine_function() -> None:
+    with pytest.raises(TypeError, match=r"'__new__' must be a coroutine function \(using 'async def'\)"):
+
+        class _(AsyncObject):
+            def __new__(cls) -> Any:
+                ...
+
+
 def test_dunder_await_defined() -> None:
     with pytest.raises(TypeError, match=r"__await__\(\) cannot be overriden"):
 
