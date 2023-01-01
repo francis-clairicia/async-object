@@ -23,9 +23,8 @@ __status__ = "Production"
 __version__ = "1.0.0"
 
 import inspect
-from collections.abc import Callable
 from functools import partialmethod
-from typing import TYPE_CHECKING, Any, Generator, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar
 
 
 class AsyncObjectMeta(type):
@@ -33,7 +32,7 @@ class AsyncObjectMeta(type):
         __Self = TypeVar("__Self", bound="AsyncObjectMeta")
 
     def __new__(mcs: type[__Self], name: str, bases: tuple[type, ...], namespace: dict[str, Any], /, **kwargs: Any) -> __Self:
-        for attr in {"__init__"}:
+        for attr in {"__new__", "__init__"}:
             try:
                 func = namespace[attr]
             except KeyError:
@@ -65,7 +64,7 @@ class AsyncObjectMeta(type):
             raise AttributeError("AsyncObject is immutable")
         if name == "__await__":
             raise TypeError("__await__() cannot be overriden")
-        if name in {"__init__"}:
+        if name in {"__new__", "__init__"}:
             if not inspect.iscoroutinefunction(value):
                 raise TypeError(f"{name!r} must be a coroutine function (using 'async def')")
         return super().__setattr__(name, value)
@@ -73,16 +72,16 @@ class AsyncObjectMeta(type):
     def __delattr__(cls, name: str, /) -> None:
         if cls is AsyncObject:
             raise AttributeError("AsyncObject is immutable")
-        if name in {"__await__", "__init__"}:
+        if name in {"__await__", "__new__", "__init__"}:
             raise TypeError(f"{name}() cannot be deleted")
         return super().__delattr__(name)
 
     async def __call__(cls, /, *args: Any, **kwargs: Any) -> Any:
         cls_new: Callable[..., Any] = cls.__new__
-        if cls_new is object.__new__:
-            self = cls_new(cls)
+        if cls_new is AsyncObject.__new__:
+            self = await cls_new(cls)
         else:
-            self = cls_new(cls, *args, **kwargs)
+            self = await cls_new(cls, *args, **kwargs)
         await type(self).__init__(self, *args, **kwargs)
         return self
 
@@ -92,6 +91,9 @@ class AsyncObject(metaclass=AsyncObjectMeta):
 
     if TYPE_CHECKING:
         __Self = TypeVar("__Self", bound="AsyncObject")
+
+    async def __new__(cls: type[__Self]) -> __Self:  # type: ignore[misc]
+        return object.__new__(cls)
 
     async def __init__(self) -> None:  # type: ignore[misc]
         pass

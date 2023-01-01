@@ -52,27 +52,29 @@ def test_AsyncObject_immutable_on_delete() -> None:
         delattr(AsyncObject, "something")
 
 
-def test_dunder_init_overwritable_with_another_coroutine() -> None:
-    async def __new_init__(self: Any) -> None:
+@pytest.mark.parametrize("attr", ["__new__", "__init__"])
+def test_dunder_init_overwritable_with_another_coroutine(attr: str) -> None:
+    async def __new_func__(self: Any) -> None:
         pass
 
     class MyObject(AsyncObject):
         pass
 
-    MyObject.__init__ = __new_init__  # type: ignore[assignment]
+    setattr(MyObject, attr, __new_func__)
 
-    assert MyObject.__init__ is __new_init__
+    assert getattr(MyObject, attr) is __new_func__
 
 
-def test_dunder_init_overwrite_error() -> None:
-    def __new_init__(self: Any) -> None:
+@pytest.mark.parametrize("attr", ["__new__", "__init__"])
+def test_constructor_overwrite_error(attr: str) -> None:
+    def __new_func__(self: Any) -> None:
         pass
 
     class MyObject(AsyncObject):
         pass
 
-    with pytest.raises(TypeError, match=r"'__init__' must be a coroutine function \(using 'async def'\)"):
-        MyObject.__init__ = __new_init__  # type: ignore[assignment]
+    with pytest.raises(TypeError, match=r"{!r} must be a coroutine function \(using 'async def'\)".format(attr)):
+        setattr(MyObject, attr, __new_func__)
 
 
 def test_setattr_something_else() -> None:
@@ -92,7 +94,7 @@ def test_dunder_await_set() -> None:
         MyObject.__await__ = None  # type: ignore[assignment]
 
 
-@pytest.mark.parametrize("attr", ["__await__", "__init__"])
+@pytest.mark.parametrize("attr", ["__await__", "__new__", "__init__"])
 def test_attribute_cannot_be_deleted(attr: str) -> None:
     class MyObject(AsyncObject):
         pass

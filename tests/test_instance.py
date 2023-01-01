@@ -55,8 +55,8 @@ async def test_subclass_with_custom_dunder_new() -> None:
     # Arrange
 
     class MyObject(AsyncObject):
-        def __new__(cls, value: int) -> MyObject:
-            self = super().__new__(cls)
+        async def __new__(cls, value: int) -> MyObject:  # type: ignore[misc]
+            self = await super().__new__(cls)
             self.myattr_from_new = value * 2
             return self
 
