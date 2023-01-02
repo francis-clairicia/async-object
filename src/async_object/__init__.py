@@ -59,9 +59,18 @@ class AsyncObjectMeta(type):
         if "__await__" in namespace:
             raise TypeError("__await__() cannot be overriden")
 
-        if not bases or any(not issubclass(b, absolute_base_class) for b in bases):
+        if not bases:
+            raise TypeError(f"{name} must explicitly derive from {absolute_base_class.__name__}")
+        if not any(issubclass(b, absolute_base_class) for b in bases):
             raise TypeError(f"All base classes must be a subclass of {absolute_base_class.__name__}")
-
+        if invalid_bases := [
+            b.__name__
+            for b in bases
+            if not issubclass(b, absolute_base_class) and (b.__new__ is not object.__new__ or b.__init__ is not object.__init__)
+        ]:
+            raise TypeError(
+                f"These non-async base classes defines a custom __new__ or __init__: {', '.join(map(repr, invalid_bases))}"
+            )
         return super().__new__(mcs, name, bases, namespace, **kwargs)
 
     def __setattr__(cls, name: str, value: Any, /) -> None:
