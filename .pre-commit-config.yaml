@@ -29,13 +29,13 @@ repos:
     hooks:
       - id: isort
         exclude: ^(\.github)/
-        args: ['--check-only', '--filter-files', '--settings-file', 'pyproject.toml']
+        args: ['--filter-files', '--settings-file', 'pyproject.toml']
   - repo: https://github.com/psf/black
     rev: '22.12.0'  # Keep in sync with requirements-dev.txt
     hooks:
       - id: black
         exclude: ^(\.github)/
-        args: ['--check', '--config', 'pyproject.toml']
+        args: ['--config', 'pyproject.toml']
   - repo: https://github.com/PyCQA/flake8
     rev: '6.0.0'  # Keep in sync with requirements-dev.txt
     hooks:
