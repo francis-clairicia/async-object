@@ -20,7 +20,7 @@ __email__ = "clairicia.rcj.francis@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "FrankySnow9"
 __status__ = "Production"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 import abc
 import inspect
