@@ -43,6 +43,8 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+This example uses `asyncio`, but it is compatible with all runner libraries, since this package only uses the language syntax.
+
 ## Description
 `async-object` provides a base class `AsyncObject` using `AsyncObjectMeta` metaclass.
 
@@ -56,7 +58,7 @@ async def main() -> None:
     print(instance)
 ```
 
-Replace the `main` in the example by this one and run it. You should see something like this in your console:
+Replace the `main` in the [Usage](#usage) example by this one and run it. You should see something like this in your console:
 ```
 <coroutine object AsyncObjectMeta.__call__ at 0x7ff1f28eb300>
 <__main__.MyObject object at 0x7ff1f21a4fd0>
@@ -104,7 +106,7 @@ class MyObjectBothNewAndInit(AsyncObject):
 Talking about inheritance, there are a few rules to follow:
 - `AsyncObject` or a subclass must appear at least once in the base classes declaration.
 - Non-`AsyncObject` classes can be used as base classes if they do not override `__new__` or `__init__` (in order not to break the [MRO](https://docs.python.org/3/glossary.html#term-method-resolution-order)).
-- To avoid confusion with [awaitable objects](https://docs.python.org/3/glossary.html#term-awaitable), overrding `__await__` is forbidden.
+- To avoid confusion with [awaitable objects](https://docs.python.org/3/glossary.html#term-awaitable), overriding `__await__` is forbidden.
 
 ### Abstract base classes
 There is a metaclass `AsyncABCMeta` deriving from `AsyncObjectMeta` and `abc.ABCMeta` which allows you to declare abstract base classes
