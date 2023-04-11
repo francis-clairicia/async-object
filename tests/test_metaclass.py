@@ -11,6 +11,16 @@ import pytest
 from async_object import AsyncABC, AsyncABCMeta, AsyncObject, AsyncObjectMeta
 
 
+@pytest.mark.asyncio
+async def test_explicit_staticmethod_dunder_new() -> None:
+    class A(AsyncObject):
+        @staticmethod
+        async def __new__(cls: type[Any]) -> Any:  # type: ignore[misc]
+            return await super().__new__(cls)
+
+    assert isinstance(await A(), A)
+
+
 def test_no_base_class() -> None:
     with pytest.raises(TypeError, match=r"^_ must explicitly derive from AsyncObject$"):
 
@@ -27,7 +37,7 @@ def test_non_async_base_class() -> None:
 
 
 def test_non_async_base_class_with_custom_dunder_new_or_dunder_init() -> None:
-    with pytest.raises(TypeError, match=r"^These non-async base classes defines a custom __new__ or __init__: 'A', 'B'$"):
+    with pytest.raises(TypeError, match=r"^These non-async base classes define a custom __new__ or __init__: 'A', 'B'$"):
 
         class A:
             def __new__(cls) -> Any:
@@ -61,7 +71,7 @@ def test_dunder_await_defined() -> None:
     with pytest.raises(TypeError, match=r"^__await__\(\) cannot be overriden$"):
 
         class _(AsyncObject):
-            def __await__(self) -> Generator[Any, None, Any]:
+            def __await__(self) -> Generator[Any, Any, Any]:  # type: ignore[misc]  # We are testing the final case
                 return super().__await__()
 
 
@@ -114,7 +124,7 @@ def test_dunder_await_set() -> None:
         pass
 
     with pytest.raises(TypeError, match=r"^__await__\(\) cannot be overriden$"):
-        MyObject.__await__ = None  # type: ignore[assignment]
+        MyObject.__await__ = None  # type: ignore[assignment,misc]
 
 
 @pytest.mark.parametrize("attr", ["__await__", "__new__", "__init__"])

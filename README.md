@@ -14,7 +14,7 @@
 `async-object` let you write classes with `async def __init__`
 
 ## Usage
-It is simple, with `async-object` you can do this :
+It is simple, with `async-object` you can do this:
 ```py
 from async_object import AsyncObject
 
@@ -43,7 +43,73 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+This example uses `asyncio`, but it is compatible with all runner libraries, since this package only uses the language syntax.
+
+## Description
+`async-object` provides a base class `AsyncObject` using `AsyncObjectMeta` metaclass.
+
+`AsyncObjectMeta` overrides the default `type` constructor in order to return a coroutine, which must be `await`-ed to get the instance.
+
+```py
+async def main() -> None:
+    coroutine = MyObject()
+    print(coroutine)
+    instance = await coroutine
+    print(instance)
+```
+
+Replace the `main` in the [Usage](#usage) example by this one and run it. You should see something like this in your console:
+```
+<coroutine object AsyncObjectMeta.__call__ at 0x7ff1f28eb300>
+<__main__.MyObject object at 0x7ff1f21a4fd0>
+```
+
+### Arguments
+Obviously, arguments can be given to `__init__` and `__new__`.
+The inheritance logic with "normal" constructors is the same here:
+```py
+class MyObjectOnlyNew(AsyncObject):
+    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObject":
+        self = await super().__new__(cls)
+
+        print(args)
+        print(kwargs)
+
+        return self
+
+
+class MyObjectOnlyInit(AsyncObject):
+    async def __init__(self, *args: Any, **kwargs: Any) -> None:
+        await super().__init__()
+
+        print(args)
+        print(kwargs)
+
+
+class MyObjectBothNewAndInit(AsyncObject):
+    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObject":
+        self = await super().__new__(cls)
+
+        print(args)
+        print(kwargs)
+
+        return self
+
+    async def __init__(self, *args: Any, **kwargs: Any) -> None:
+        await super().__init__()
+
+        print(args)
+        print(kwargs)
+```
+
+### Inheritance
+Talking about inheritance, there are a few rules to follow:
+- `AsyncObject` or a subclass must appear at least once in the base classes declaration.
+- Non-`AsyncObject` classes can be used as base classes if they do not override `__new__` or `__init__` (in order not to break the [MRO](https://docs.python.org/3/glossary.html#term-method-resolution-order)).
+- To avoid confusion with [awaitable objects](https://docs.python.org/3/glossary.html#term-awaitable), overriding `__await__` is forbidden.
+
 ### Abstract base classes
+There is a metaclass `AsyncABCMeta` deriving from `AsyncObjectMeta` and `abc.ABCMeta` which allows you to declare abstract base classes
 ```py
 import abc
 
@@ -61,7 +127,7 @@ class MyAbstractObject(AsyncObject, metaclass=AsyncABCMeta):
 
 
 class MyObject(MyAbstractObject):
-    async def __init__(self, arg1: int, arg2: str) -> None:
+    async def __init__(self) -> None:
         await super().__init__()
 
     def method(self) -> None:
@@ -92,7 +158,7 @@ class MyAbstractObject(AsyncABC):
 
 ### Static type checking
 
-Static type checkers like `mypy` do not like having `async def` for `__new__` and `__init__`. You can use `# type: ignore[misc]` comment to mask these errors when overriding these methods.
+`mypy` does not like having `async def` for `__new__` and `__init__`. You can use `# type: ignore[misc]` comment to mask these errors when overriding these methods.
 ```py
 class MyObject(AsyncObject):
     async def __new__(cls) -> "MyObject":  # type: ignore[misc]

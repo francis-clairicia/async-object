@@ -8,9 +8,7 @@ authors = [{name = "FrankySnow9", email = "clairicia.rcj.francis@gmail.com"}]
 requires-python = ">=3.8"
 readme = "README.md"
 license = {file = "LICENSE"}
-dependencies = [
-
-]
+dependencies = []
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -26,6 +24,7 @@ classifiers = [
   "Typing :: Typed"
 ]
 dynamic = ["version", "description"]
+keywords = ["async", "init", "asyncio"]
 
 [project.urls]
 Home = "https://github.com/francis-clairicia/async-object"
