@@ -114,7 +114,6 @@ class AsyncObject(metaclass=AsyncObjectMeta):
         pass
 
     if TYPE_CHECKING:
-
         # Static type checkers like mypy think 'await AsyncObject()' is
         # 'await instanciated object'
         def __await__(self: __Self) -> Generator[Any, None, __Self]:
