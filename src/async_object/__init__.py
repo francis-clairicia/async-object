@@ -25,14 +25,15 @@ __version__ = "1.1.0"
 import abc
 import inspect
 from functools import partialmethod
-from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar, final
 
 
 def _validate_constructor(func: Any, name: str) -> None:
     if isinstance(func, (staticmethod, classmethod)):
-        func = func.__func__
-    elif isinstance(func, partialmethod):
-        func = func.func
+        return _validate_constructor(func.__func__, name)
+    if isinstance(func, partialmethod):  # pragma: no cover
+        return _validate_constructor(func.func, name)
+
     if not inspect.iscoroutinefunction(func):
         raise TypeError(f"{name!r} must be a coroutine function (using 'async def')")
 
@@ -59,17 +60,15 @@ class AsyncObjectMeta(type):
         if "__await__" in namespace:
             raise TypeError("__await__() cannot be overriden")
 
-        if not bases:
-            raise TypeError(f"{name} must explicitly derive from {absolute_base_class.__name__}")
         if not any(issubclass(b, absolute_base_class) for b in bases):
-            raise TypeError(f"All base classes must be a subclass of {absolute_base_class.__name__}")
+            raise TypeError(f"{name} must explicitly derive from {absolute_base_class.__name__}")
         if invalid_bases := [
             b.__name__
             for b in bases
             if not issubclass(b, absolute_base_class) and (b.__new__ is not object.__new__ or b.__init__ is not object.__init__)
         ]:
             raise TypeError(
-                f"These non-async base classes defines a custom __new__ or __init__: {', '.join(map(repr, invalid_bases))}"
+                f"These non-async base classes define a custom __new__ or __init__: {', '.join(map(repr, invalid_bases))}"
             )
         return super().__new__(mcs, name, bases, namespace, **kwargs)
 
@@ -114,9 +113,9 @@ class AsyncObject(metaclass=AsyncObjectMeta):
         pass
 
     if TYPE_CHECKING:
-        # Static type checkers like mypy think 'await AsyncObject()' is
-        # 'await instanciated object'
-        def __await__(self: __Self) -> Generator[Any, None, __Self]:
+        # mypy think 'await AsyncObject()' is 'await (already instanciated object)'
+        @final
+        def __await__(self: __Self) -> Generator[Any, Any, __Self]:
             ...
 
 
