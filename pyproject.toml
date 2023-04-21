@@ -1,13 +1,14 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling >=1.13,<2"]
+build-backend = "hatchling.build"
 
 [project]
 name = "async-object"
+description = "async-object let you write classes with async def __init__"
 authors = [{name = "FrankySnow9", email = "clairicia.rcj.francis@gmail.com"}]
-requires-python = ">=3.8"
+requires-python = ">=3.8.1"
 readme = "README.md"
-license = {file = "LICENSE"}
+license-files = { paths = ["LICENSE"] }
 dependencies = []
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -23,26 +24,54 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed"
 ]
-dynamic = ["version", "description"]
+dynamic = ["version"]
 keywords = ["async", "init", "asyncio"]
 
 [project.urls]
-Home = "https://github.com/francis-clairicia/async-object"
+Homepage = "https://github.com/francis-clairicia/async-object"
 
-############################ Flit configuration ############################
-[tool.flit.sdist]
-include = [
-  ".flake8",
-]
+############################ hatchling configuration ############################
+
+[tool.hatch.build]
 exclude = [
   ".github/",
-  "tests/",
-  ".gitignore",
-  ".pre-commit-config.yaml",
-  "tox.ini",
+  ".vscode/",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/async_object"]
+
+[tool.hatch.version]
+path = "src/async_object/__init__.py"
+
 ############################ Development tools configuration ############################
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pre-commit>=2.20.0",
+    "build>=0.10",
+    "twine>=4.0.2",
+]
+tox = [
+    "tox<5,>=4.0.8",
+]
+format = [
+    "isort!=5.11.0,>=5.10.1",
+    "black>=22.6.0",
+]
+mypy = [
+    "mypy==1.2.0",
+]
+flake8 = [
+    "flake8>=6.0",
+    "flake8-pyi>=22.11.0",
+]
+test = [
+    "pytest~=7.2",
+    "pytest-asyncio~=0.20",
+    "pytest-cov<5,>=4.0",
+    "coverage[toml]",
+]
 
 [tool.isort]
 profile = "black"
@@ -70,6 +99,14 @@ testpaths = ["tests"]
 branch = true
 source_pkgs = [
   "async_object",
+]
+relative_files = true
+
+[tool.coverage.paths]
+source = [
+  "src/",
+  ".tox/*/lib/python*/site-packages",
+  '.tox\*\Lib\site-packages',  # Keep single quote here (TOML raw string syntax, useful for '\')
 ]
 
 [tool.coverage.report]
