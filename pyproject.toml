@@ -30,6 +30,11 @@ keywords = ["async", "init", "asyncio"]
 [project.urls]
 Homepage = "https://github.com/francis-clairicia/async-object"
 
+[project.optional-dependencies]
+mypy = [
+  "mypy~=1.1.0",
+]
+
 ############################ hatchling configuration ############################
 
 [tool.hatch.build]
@@ -59,8 +64,8 @@ format = [
     "isort!=5.11.0,>=5.10.1",
     "black>=22.6.0",
 ]
-mypy = [
-    "mypy==1.2.0",
+mypy-dev = [
+    "mypy~=1.1.0",
 ]
 flake8 = [
     "flake8>=6.0",
@@ -90,6 +95,7 @@ show_error_codes = true
 strict = true
 warn_return_any = false
 enable_error_code = ["ignore-without-code", "unused-awaitable"]
+plugins = "async_object.linting.mypy"
 
 [tool.pytest.ini_options]
 minversion = "7.2"
