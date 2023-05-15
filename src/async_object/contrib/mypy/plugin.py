@@ -7,7 +7,7 @@
 This module helps mypy to understand asynchronous constructors.
 
 To register this plugin in your mypy.ini, pyproject.toml, or whatever,
-you must add "async_object.linting.mypy" to the plugins list.
+you must add "async_object.contrib.mypy.plugin" to the plugins list.
 
 See how to register a plugin here: https://mypy.readthedocs.io/en/stable/extending_mypy.html#configuring-mypy-to-use-plugins
 """
