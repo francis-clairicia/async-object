@@ -23,7 +23,7 @@ async def test_subclass() -> None:
     # Arrange
 
     class MyObject(AsyncObject):
-        async def __init__(self) -> None:  # type: ignore[misc]
+        async def __init__(self) -> None:
             await super().__init__()
             self.myattr_from_init: int = 2
 
@@ -39,7 +39,7 @@ async def test_subclass_with_arguments() -> None:
     # Arrange
 
     class MyObject(AsyncObject):
-        async def __init__(self, value: int) -> None:  # type: ignore[misc]
+        async def __init__(self, value: int) -> None:
             await super().__init__()
             self.myattr_from_init: int = value
 
@@ -79,7 +79,7 @@ async def test_subclass_with_custom_dunder_new() -> None:
             self.myattr_from_new = value * 2
             return self
 
-        async def __init__(self, value: int) -> None:  # type: ignore[misc]
+        async def __init__(self, value: int) -> None:
             await super().__init__()
             self.myattr_from_new: int
             self.myattr_from_init: int = value

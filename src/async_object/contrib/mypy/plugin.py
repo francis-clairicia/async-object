@@ -74,24 +74,35 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
         if node is None or node.node is None:
             continue
 
+        new_ctor_name: str | None = None
+        if ctor in {"__init__"}:
+            new_ctor_name = f"__async_{ctor[2:-2]}"
+
         func_items: Sequence[SymbolNode]
         if isinstance(node.node, OverloadedFuncDef):
             func_items = node.node.items
         else:
             func_items = [node.node]
 
-        for func_def in func_items:
-            if isinstance(func_def, Decorator):
-                func_def = func_def.func
-            if not isinstance(func_def, FuncDef):
+        for defn in func_items:
+            if isinstance(defn, Decorator):
+                defn = defn.func
+            elif not isinstance(defn, FuncDef):
                 continue
-            if not func_def.is_coroutine:
+            if not defn.is_coroutine:
                 ctx.api.fail(
                     f'"{ctor}" must be a coroutine function (using "async def")',
-                    func_def,
+                    defn,
                     serious=True,
                     code=errorcodes.OVERRIDE,
                 )
+                continue
+            if new_ctor_name is not None:
+                defn._name = new_ctor_name
+                assert defn.name == new_ctor_name
+
+        if new_ctor_name is not None:
+            info.names[new_ctor_name] = info.names[ctor]
 
     if info.get_method("__await__") is not None:
         ctx.api.fail('AsyncObject subclasses must not have "__await__" method', ctx.cls, code=errorcodes.OVERRIDE)
