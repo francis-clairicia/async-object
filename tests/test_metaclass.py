@@ -55,7 +55,7 @@ def test_dunder_init_not_a_coroutine_function() -> None:
     with pytest.raises(TypeError, match=r"^'__init__' must be a coroutine function \(using 'async def'\)$"):
 
         class _(AsyncObject):
-            def __init__(self) -> None:  # type: ignore[misc]
+            def __init__(self) -> None:  # type: ignore[override]
                 ...
 
 
@@ -63,15 +63,15 @@ def test_dunder_new_not_a_coroutine_function() -> None:
     with pytest.raises(TypeError, match=r"^'__new__' must be a coroutine function \(using 'async def'\)$"):
 
         class _(AsyncObject):
-            def __new__(cls) -> Any:  # type: ignore[misc]
+            def __new__(cls) -> Any:  # type: ignore[override]
                 ...
 
 
 def test_dunder_await_defined() -> None:
     with pytest.raises(TypeError, match=r"^AsyncObject subclasses must not have __await__ method$"):
 
-        class _(AsyncObject):
-            def __await__(self) -> Generator[Any, Any, Any]:  # type: ignore[override]  # We are testing the final case
+        class _(AsyncObject):  # type: ignore[override]  # We are testing the final case
+            def __await__(self) -> Generator[Any, Any, Any]:
                 raise NotImplementedError
 
 

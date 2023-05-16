@@ -16,10 +16,10 @@ from __future__ import annotations
 
 __all__ = []  # type: list[str]
 
-from typing import Callable
+from typing import Callable, Sequence
 
 from mypy import errorcodes
-from mypy.nodes import Decorator, FuncDef, SymbolTableNode, TypeInfo
+from mypy.nodes import Decorator, FuncDef, OverloadedFuncDef, SymbolNode, SymbolTableNode, TypeInfo
 from mypy.plugin import ClassDefContext, FunctionContext, Plugin
 from mypy.types import AnyType, Type, TypeOfAny
 
@@ -67,30 +67,32 @@ def async_class_instanciation_callback(ctx: FunctionContext) -> Type:
 
 
 def async_class_def_callback(ctx: ClassDefContext) -> None:
-    cls = ctx.cls
-    info = cls.info
+    info = ctx.cls.info
 
     for ctor in ("__new__", "__init__"):
         node = info.names.get(ctor)
-        if node is None:
+        if node is None or node.node is None:
             continue
 
-        func_def = node.node
-        assert func_def is not None
+        func_items: Sequence[SymbolNode]
+        if isinstance(node.node, OverloadedFuncDef):
+            func_items = node.node.items
+        else:
+            func_items = [node.node]
 
-        if isinstance(func_def, Decorator):
-            func_def = func_def.func
-        if not isinstance(func_def, FuncDef) or not func_def.is_coroutine:
-            ctx.api.fail(
-                f'"{ctor}" must be a coroutine function (using "async def")',
-                func_def,
-                serious=True,
-                code=errorcodes.MISC,
-            )
-            continue
+        for func_def in func_items:
+            if isinstance(func_def, Decorator):
+                func_def = func_def.func
+            if not isinstance(func_def, FuncDef) or not func_def.is_coroutine:
+                ctx.api.fail(
+                    f'"{ctor}" must be a coroutine function (using "async def")',
+                    func_def,
+                    serious=True,
+                    code=errorcodes.OVERRIDE,
+                )
 
-    if (dunder_await_method := info.get_method("__await__")) is not None:
-        ctx.api.fail("AsyncObject subclasses must not have __await__ method", dunder_await_method, code=errorcodes.OVERRIDE)
+    if info.get_method("__await__") is not None:
+        ctx.api.fail('AsyncObject subclasses must not have "__await__" method', ctx.cls, code=errorcodes.OVERRIDE)
 
 
 def plugin(version: str) -> type[Plugin]:
