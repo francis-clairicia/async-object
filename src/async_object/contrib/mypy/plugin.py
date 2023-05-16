@@ -83,7 +83,9 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
         for func_def in func_items:
             if isinstance(func_def, Decorator):
                 func_def = func_def.func
-            if not isinstance(func_def, FuncDef) or not func_def.is_coroutine:
+            if not isinstance(func_def, FuncDef):
+                continue
+            if not func_def.is_coroutine:
                 ctx.api.fail(
                     f'"{ctor}" must be a coroutine function (using "async def")',
                     func_def,
