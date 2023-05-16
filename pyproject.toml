@@ -32,7 +32,7 @@ Homepage = "https://github.com/francis-clairicia/async-object"
 
 [project.optional-dependencies]
 mypy = [
-  "mypy~=1.1.0",
+    "mypy>=1.3.0",
 ]
 
 ############################ hatchling configuration ############################
@@ -63,9 +63,6 @@ tox = [
 format = [
     "isort!=5.11.0,>=5.10.1",
     "black>=22.6.0",
-]
-mypy-dev = [
-    "mypy~=1.1.0",
 ]
 flake8 = [
     "flake8>=6.0",
