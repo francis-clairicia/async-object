@@ -16,14 +16,14 @@
 ## Installation
 ### From PyPI repository
 ```sh
-pip install async-object
+pip install --user async-object
 ```
 
 ### From source
 ```sh
 git clone https://github.com/francis-clairicia/async-object.git
 cd async-object
-pip install .
+pip install --user .
 ```
 
 ## Usage
