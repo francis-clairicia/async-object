@@ -93,7 +93,7 @@ class MyObjectOnlyNew(AsyncObject):
 
 class MyObjectOnlyInit(AsyncObject):
     async def __init__(self, *args: Any, **kwargs: Any) -> None:
-        await super().__init__()
+        # await super().__init__()  # Optional if the base class is only AsyncObject (but useful in multiple inheritance context)
 
         print(args)
         print(kwargs)
@@ -109,7 +109,7 @@ class MyObjectBothNewAndInit(AsyncObject):
         return self
 
     async def __init__(self, *args: Any, **kwargs: Any) -> None:
-        await super().__init__()
+        # await super().__init__()
 
         print(args)
         print(kwargs)
@@ -141,7 +141,7 @@ class MyAbstractObject(AsyncObject, metaclass=AsyncABCMeta):
 
 class MyObject(MyAbstractObject):
     async def __init__(self) -> None:
-        await super().__init__()
+        pass
 
     def method(self) -> None:
         pass
