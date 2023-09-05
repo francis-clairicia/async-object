@@ -30,12 +30,12 @@ repos:
       - id: isort
         args: ['--filter-files', '--settings-file', 'pyproject.toml']
   - repo: https://github.com/psf/black
-    rev: '23.3.0'  # Keep in sync with requirements-dev.txt
+    rev: '23.7.0'  # Keep in sync with requirements-dev.txt
     hooks:
       - id: black
         args: ['--config', 'pyproject.toml']
   - repo: https://github.com/PyCQA/flake8
-    rev: '6.0.0'  # Keep in sync with requirements-dev.txt
+    rev: '6.1.0'  # Keep in sync with requirements-dev.txt
     hooks:
       - id: flake8
         args: ['--config', '.flake8']
@@ -47,7 +47,7 @@ repos:
         types: []  # Overwrite with empty in order to fallback to types_or
         types_or: [python, pyi]
   - repo: https://github.com/pdm-project/pdm
-    rev: '2.7.4'
+    rev: '2.9.1'
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/pre-commit/pre-commit-hooks
