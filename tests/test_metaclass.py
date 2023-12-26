@@ -16,7 +16,7 @@ async def test_explicit_staticmethod_dunder_new() -> None:
     class A(AsyncObject):
         @staticmethod
         async def __new__(cls: type[Any]) -> Any:  # type: ignore[misc]
-            return await super().__new__(cls)
+            return await super(A, cls).__new__(cls)
 
     assert isinstance(await A(), A)
 

@@ -189,7 +189,7 @@ plugins = async_object.contrib.mypy.plugin
 In `pyproject.toml`:
 ```toml
 [tool.mypy]
-plugins = "async_object.contrib.mypy.plugin"
+plugins = ["async_object.contrib.mypy.plugin"]
 ```
 
 For more information, see [the mypy documentation](https://mypy.readthedocs.io/en/stable/extending_mypy.html#configuring-mypy-to-use-plugins).
