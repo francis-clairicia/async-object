@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "dev", "flake8", "format", "mypy", "test", "tox"]
+groups = ["default", "coverage", "dev", "flake8", "format", "mypy", "test", "tox"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:70ec6c17bc0059ab67c7987906d7d6497a215ca254a4c50919220aae20689d77"
+content_hash = "sha256:b9d961b12adf8a540a98275e8bc51a197ed985238927ed7f4872fb556a4933aa"
 
 [[package]]
 name = "black"
@@ -263,7 +263,7 @@ name = "coverage"
 version = "7.3.4"
 requires_python = ">=3.8"
 summary = "Code coverage measurement for Python"
-groups = ["test"]
+groups = ["coverage", "test"]
 files = [
     {file = "coverage-7.3.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:aff2bd3d585969cc4486bfc69655e862028b689404563e6b549e6a8244f226df"},
     {file = "coverage-7.3.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e4353923f38d752ecfbd3f1f20bf7a3546993ae5ecd7c07fd2f25d40b4e54571"},
@@ -315,7 +315,7 @@ version = "7.3.4"
 extras = ["toml"]
 requires_python = ">=3.8"
 summary = "Code coverage measurement for Python"
-groups = ["test"]
+groups = ["coverage", "test"]
 dependencies = [
     "coverage==7.3.4",
     "tomli; python_full_version <= \"3.11.0a6\"",
@@ -1062,7 +1062,7 @@ name = "tomli"
 version = "2.0.1"
 requires_python = ">=3.7"
 summary = "A lil' TOML parser"
-groups = ["dev", "format", "mypy", "test", "tox"]
+groups = ["coverage", "dev", "format", "mypy", "test", "tox"]
 marker = "python_version < \"3.11\""
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
@@ -1119,7 +1119,7 @@ name = "typing-extensions"
 version = "4.9.0"
 requires_python = ">=3.8"
 summary = "Backported and Experimental Type Hints for Python 3.8+"
-groups = ["default", "format", "mypy"]
+groups = ["format", "mypy", "test"]
 files = [
     {file = "typing_extensions-4.9.0-py3-none-any.whl", hash = "sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd"},
     {file = "typing_extensions-4.9.0.tar.gz", hash = "sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783"},

@@ -27,12 +27,8 @@ import inspect
 from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
-from typing_extensions import Self
-
 
 def _validate_constructor(func: Any, name: str) -> None:
-    if isinstance(func, (staticmethod, classmethod)):
-        return _validate_constructor(func.__func__, name)
     if isinstance(func, partialmethod):  # pragma: no cover
         return _validate_constructor(func.func, name)
 
@@ -45,7 +41,7 @@ class AsyncObjectMeta(type):
         __Self = TypeVar("__Self", bound="AsyncObjectMeta")
 
     def __new__(mcs: type[__Self], name: str, bases: tuple[type, ...], namespace: dict[str, Any], /, **kwargs: Any) -> __Self:
-        for attr in {"__new__", "__init__"}:
+        for attr in {"__init__"}:
             try:
                 func = namespace[attr]
             except KeyError:
@@ -65,13 +61,9 @@ class AsyncObjectMeta(type):
         if not any(issubclass(b, absolute_base_class) for b in bases):
             raise TypeError(f"{name} must explicitly derive from {absolute_base_class.__name__}")
         if invalid_bases := [
-            b.__name__
-            for b in bases
-            if not issubclass(b, absolute_base_class) and (b.__new__ is not object.__new__ or b.__init__ is not object.__init__)
+            b.__name__ for b in bases if not issubclass(b, absolute_base_class) and (b.__init__ is not object.__init__)
         ]:
-            raise TypeError(
-                f"These non-async base classes define a custom __new__ or __init__: {', '.join(map(repr, invalid_bases))}"
-            )
+            raise TypeError(f"These non-async base classes define a custom __init__: {', '.join(map(repr, invalid_bases))}")
         return super().__new__(mcs, name, bases, namespace, **kwargs)
 
     def __setattr__(cls, name: str, value: Any, /) -> None:
@@ -79,34 +71,31 @@ class AsyncObjectMeta(type):
             raise AttributeError("AsyncObject is immutable")
         if name == "__await__":
             raise TypeError("AsyncObject subclasses must not have __await__ method")
-        if name in {"__new__", "__init__"}:
+        if name == "__init__":
             _validate_constructor(value, name)
         return super().__setattr__(name, value)
 
     def __delattr__(cls, name: str, /) -> None:
         if cls is AsyncObject:
             raise AttributeError("AsyncObject is immutable")
-        if name in {"__await__", "__new__", "__init__"}:
+        if name in {"__await__", "__init__"}:
             raise TypeError(f"{name}() cannot be deleted")
         return super().__delattr__(name)
 
     async def __call__(cls, /, *args: Any, **kwargs: Any) -> Any:
         cls_new: Callable[..., Any] = cls.__new__
-        if cls_new is AsyncObject.__new__:
-            self = await cls_new(cls)
+        if cls_new is object.__new__:
+            self = cls_new(cls)
         else:
-            self = await cls_new(cls, *args, **kwargs)
+            self = cls_new(cls, *args, **kwargs)
         cls_init = type(self).__init__
-        if cls_init is not AsyncObject.__init__ or cls_new is AsyncObject.__new__:
+        if cls_init is not AsyncObject.__init__ or cls_new is object.__new__:
             await cls_init(self, *args, **kwargs)
         return self
 
 
 class AsyncObject(metaclass=AsyncObjectMeta):
     __slots__ = ()
-
-    async def __new__(cls) -> Self:  # type: ignore[misc]
-        return object.__new__(cls)
 
     async def __init__(self) -> None:  # type: ignore[misc]
         pass
