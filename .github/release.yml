@@ -1,0 +1,29 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - pre-commit-ci  # autoupdate PRs: Only affects development
+      - dependabot  # dependabot is configured to check github actions' pinned version in workflows
+  categories:
+    - title: Backward incompatible changes
+      labels:
+        - breaking-changes
+    - title: Bug fixes
+      labels:
+        - bug
+    - title: Features/Improvement
+      labels:
+        - enhancement
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Dependencies
+      labels:
+        - dependencies
+    - title: Other Changes
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - development-process
