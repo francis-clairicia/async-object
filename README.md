@@ -13,6 +13,19 @@
 
 `async-object` let you write classes with `async def __init__`
 
+## Installation
+### From PyPI repository
+```sh
+pip install --user async-object
+```
+
+### From source
+```sh
+git clone https://github.com/francis-clairicia/async-object.git
+cd async-object
+pip install --user .
+```
+
 ## Usage
 It is simple, with `async-object` you can do this:
 ```py
@@ -68,8 +81,10 @@ Replace the `main` in the [Usage](#usage) example by this one and run it. You sh
 Obviously, arguments can be given to `__init__` and `__new__`.
 The inheritance logic with "normal" constructors is the same here:
 ```py
+from typing_extensions import Self
+
 class MyObjectOnlyNew(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObject":
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         self = await super().__new__(cls)
 
         print(args)
@@ -80,14 +95,14 @@ class MyObjectOnlyNew(AsyncObject):
 
 class MyObjectOnlyInit(AsyncObject):
     async def __init__(self, *args: Any, **kwargs: Any) -> None:
-        await super().__init__()
+        # await super().__init__()  # Optional if the base class is only AsyncObject (but useful in multiple inheritance context)
 
         print(args)
         print(kwargs)
 
 
 class MyObjectBothNewAndInit(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObject":
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         self = await super().__new__(cls)
 
         print(args)
@@ -96,7 +111,7 @@ class MyObjectBothNewAndInit(AsyncObject):
         return self
 
     async def __init__(self, *args: Any, **kwargs: Any) -> None:
-        await super().__init__()
+        # await super().__init__()
 
         print(args)
         print(kwargs)
@@ -128,7 +143,7 @@ class MyAbstractObject(AsyncObject, metaclass=AsyncABCMeta):
 
 class MyObject(MyAbstractObject):
     async def __init__(self) -> None:
-        await super().__init__()
+        pass
 
     def method(self) -> None:
         pass
@@ -154,16 +169,58 @@ class MyAbstractObject(AsyncABC):
         raise NotImplementedError
 ```
 
-## Troubleshoots
+## Static type checking: mypy integration
+`mypy` does not like having `async def` for `__new__` and `__init__`, and will not understand `await AsyncObject()`.
 
-### Static type checking
+`async-object` embeds a plugin which helps `mypy` to understand asynchronous constructors.
 
-`mypy` does not like having `async def` for `__new__` and `__init__`. You can use `# type: ignore[misc]` comment to mask these errors when overriding these methods.
+### Installation
+Firstly, install the needed dependencies:
+```sh
+pip install async-object[mypy]
+```
+
+To register this plugin in your `mypy.ini`, `pyproject.toml`, or whatever, you must add `async_object.contrib.mypy.plugin` to the plugins list.
+
+In `mypy.ini`:
+```ini
+[mypy]
+plugins = async_object.contrib.mypy.plugin
+```
+
+In `pyproject.toml`:
+```toml
+[tool.mypy]
+plugins = ["async_object.contrib.mypy.plugin"]
+```
+
+For more information, see [the mypy documentation](https://mypy.readthedocs.io/en/stable/extending_mypy.html#configuring-mypy-to-use-plugins).
+
+### What is permitted then ?
+#### `__init__` method returning a coroutine is accepted
+The error `The return type of "__init__" must be None` is discarded.
 ```py
 class MyObject(AsyncObject):
-    async def __new__(cls) -> "MyObject":  # type: ignore[misc]
+    async def __init__(self, param: int) -> None:
+        await super().__init__()
+```
+
+#### The class instanciation introspection is fixed
+```py
+async def main() -> None:
+    coroutine = MyObject()
+    reveal_type(coroutine)  # Revealed type is "typing.Coroutine[Any, Any, __main__.MyObject]"
+    instance = await coroutine
+    reveal_type(instance)  # Revealed type is "__main__.MyObject"
+```
+
+### Caveat/Known issues
+The errors triggered by `__new__` cannot be silenced yet. You can use `# type: ignore[misc]` comment to mask these errors.
+```py
+class MyObject(AsyncObject):
+    async def __new__(cls) -> Self:  # type: ignore[misc]
         return await super().__new__(cls)
 
-    async def __init__(self) -> None:  # type: ignore[misc]
+    async def __init__(self) -> None:
         await super().__init__()
 ```

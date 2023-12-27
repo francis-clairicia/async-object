@@ -25,7 +25,9 @@ __version__ = "1.1.1"
 import abc
 import inspect
 from functools import partialmethod
-from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar, final
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
+
+from typing_extensions import Self
 
 
 def _validate_constructor(func: Any, name: str) -> None:
@@ -58,7 +60,7 @@ class AsyncObjectMeta(type):
             raise
 
         if "__await__" in namespace:
-            raise TypeError("__await__() cannot be overriden")
+            raise TypeError("AsyncObject subclasses must not have __await__ method")
 
         if not any(issubclass(b, absolute_base_class) for b in bases):
             raise TypeError(f"{name} must explicitly derive from {absolute_base_class.__name__}")
@@ -76,7 +78,7 @@ class AsyncObjectMeta(type):
         if cls is AsyncObject:
             raise AttributeError("AsyncObject is immutable")
         if name == "__await__":
-            raise TypeError("__await__() cannot be overriden")
+            raise TypeError("AsyncObject subclasses must not have __await__ method")
         if name in {"__new__", "__init__"}:
             _validate_constructor(value, name)
         return super().__setattr__(name, value)
@@ -103,20 +105,11 @@ class AsyncObjectMeta(type):
 class AsyncObject(metaclass=AsyncObjectMeta):
     __slots__ = ()
 
-    if TYPE_CHECKING:
-        __Self = TypeVar("__Self", bound="AsyncObject")
-
-    async def __new__(cls: type[__Self]) -> __Self:  # type: ignore[misc]
+    async def __new__(cls) -> Self:  # type: ignore[misc]
         return object.__new__(cls)
 
     async def __init__(self) -> None:  # type: ignore[misc]
         pass
-
-    if TYPE_CHECKING:
-        # mypy think 'await AsyncObject()' is 'await (already instanciated object)'
-        @final
-        def __await__(self: __Self) -> Generator[Any, Any, __Self]:
-            ...
 
 
 class AsyncABCMeta(AsyncObjectMeta, abc.ABCMeta):

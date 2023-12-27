@@ -9,7 +9,9 @@ authors = [{name = "FrankySnow9", email = "clairicia.rcj.francis@gmail.com"}]
 requires-python = ">=3.8.1"
 readme = "README.md"
 license-files = { paths = ["LICENSE"] }
-dependencies = []
+dependencies = [
+    "typing-extensions>=4.9.0",
+]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -29,6 +31,11 @@ keywords = ["async", "init", "asyncio"]
 
 [project.urls]
 Homepage = "https://github.com/francis-clairicia/async-object"
+
+[project.optional-dependencies]
+mypy = [
+    "mypy>=1.8.0",
+]
 
 ############################ hatchling configuration ############################
 
@@ -59,9 +66,6 @@ format = [
     "isort!=5.11.0,>=5.10.1",
     "black>=22.6.0",
 ]
-mypy = [
-    "mypy==1.2.0",
-]
 flake8 = [
     "flake8>=6.0",
     "flake8-pyi>=22.11.0",
@@ -90,6 +94,10 @@ show_error_codes = true
 strict = true
 warn_return_any = false
 enable_error_code = ["ignore-without-code", "unused-awaitable"]
+plugins = [
+  "mypy.plugins.proper_plugin",
+  "async_object.contrib.mypy.plugin",
+]
 
 [tool.pytest.ini_options]
 minversion = "7.2"
@@ -99,6 +107,9 @@ testpaths = ["tests"]
 branch = true
 source_pkgs = [
   "async_object",
+]
+omit = [
+  "*/async_object/contrib/**/*.py",
 ]
 relative_files = true
 
