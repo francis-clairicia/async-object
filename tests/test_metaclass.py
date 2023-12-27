@@ -37,7 +37,7 @@ def test_non_async_base_class_with_custom_dunder_init() -> None:
             def __init__(self) -> None:
                 pass
 
-        class _(AsyncObject, A, B):
+        class _(AsyncObject, A, B):  # type: ignore[override]
             pass
 
 
@@ -52,9 +52,24 @@ def test_dunder_init_not_a_coroutine_function() -> None:
 def test_dunder_await_defined() -> None:
     with pytest.raises(TypeError, match=r"^AsyncObject subclasses must not have __await__ method$"):
 
-        class _(AsyncObject):  # type: ignore[override]  # We are testing the final case
-            def __await__(self) -> Generator[Any, Any, Any]:
+        class _(AsyncObject):
+            def __await__(self) -> Generator[Any, Any, Any]:  # type: ignore[override]  # We are testing the final case
                 raise NotImplementedError
+
+
+def test_base_class_with_dunder_await() -> None:
+    with pytest.raises(TypeError, match=r"^These base classes define __await__: 'A', 'B'$"):
+
+        class A:
+            def __await__(self) -> None:
+                pass
+
+        class B:
+            def __await__(self) -> None:
+                pass
+
+        class _(AsyncObject, A, B):  # type: ignore[override]
+            pass
 
 
 def test_AsyncObject_immutable_on_set() -> None:

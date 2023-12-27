@@ -99,8 +99,35 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
 
         info.names[new_ctor_name] = info.names[ctor]
 
-    if info.get_method("__await__") is not None:
-        ctx.api.fail('AsyncObject subclasses must not have "__await__" method', ctx.cls, code=errorcodes.OVERRIDE)
+    if dunder_await_node := info.names.get("__await__"):
+        node_ctx = dunder_await_node.node if dunder_await_node.node else ctx.cls
+        ctx.api.fail(
+            'AsyncObject subclasses must not have "__await__" method',
+            node_ctx,
+            serious=True,
+            code=errorcodes.OVERRIDE,
+        )
+    elif base_classes_with_dunder_await := [cls_info.defn.name for cls_info in info.mro[1:] if "__await__" in cls_info.names]:
+        ctx.api.fail(
+            f"These base classes define __await__: {', '.join(map(repr, base_classes_with_dunder_await))}",
+            ctx.cls,
+            serious=True,
+            code=errorcodes.OVERRIDE,
+        )
+
+    non_async_base_class_info_list = list(
+        filter(lambda cls_info: not cls_info.has_base(_ASYNC_OBJECT_BASE_CLASS_FULLNAME), info.mro[1:-1])
+    )
+
+    if non_async_base_classes_with_dunder_init := [
+        cls_info.defn.name for cls_info in non_async_base_class_info_list if "__init__" in cls_info.names
+    ]:
+        ctx.api.fail(
+            f"These non-async base classes define a custom __init__: {', '.join(map(repr, non_async_base_classes_with_dunder_init))}",
+            ctx.cls,
+            serious=True,
+            code=errorcodes.OVERRIDE,
+        )
 
 
 def __set_func_def_name(defn: FuncDef, name: str) -> None:

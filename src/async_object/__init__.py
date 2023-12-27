@@ -64,6 +64,8 @@ class AsyncObjectMeta(type):
             b.__name__ for b in bases if not issubclass(b, absolute_base_class) and (b.__init__ is not object.__init__)
         ]:
             raise TypeError(f"These non-async base classes define a custom __init__: {', '.join(map(repr, invalid_bases))}")
+        if invalid_bases := [b.__name__ for b in bases if hasattr(b, "__await__")]:
+            raise TypeError(f"These base classes define __await__: {', '.join(map(repr, invalid_bases))}")
         return super().__new__(mcs, name, bases, namespace, **kwargs)
 
     def __setattr__(cls, name: str, value: Any, /) -> None:
