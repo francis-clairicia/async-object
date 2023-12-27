@@ -16,6 +16,7 @@ from __future__ import annotations
 
 __all__ = []  # type: list[str]
 
+import importlib.util
 from typing import Callable, Sequence
 
 from mypy import errorcodes
@@ -23,7 +24,7 @@ from mypy.nodes import Decorator, FuncDef, OverloadedFuncDef, SymbolNode, Symbol
 from mypy.plugin import ClassDefContext, FunctionContext, Plugin
 from mypy.types import AnyType, Type, TypeOfAny
 
-_ASYNC_OBJECT_BASE_CLASS_FULLNAME = "async_object.AsyncObject"
+_ASYNC_OBJECT_BASE_CLASS_FULLNAME = f"{importlib.util.resolve_name('...', __package__)}.AsyncObject"
 
 
 class AsyncObjectPlugin(Plugin):
@@ -34,7 +35,6 @@ class AsyncObjectPlugin(Plugin):
         node = self._get_type_info_if_AsyncObject_subclass(fullname)
         if node is None:
             return None
-
         return async_class_instanciation_callback
 
     def get_base_class_hook(self, fullname: str) -> Callable[[ClassDefContext], None] | None:
@@ -76,7 +76,7 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
 
         new_ctor_name: str | None = None
         if ctor in {"__init__"}:
-            new_ctor_name = f"__async_{ctor[2:-2]}"
+            new_ctor_name = f"__async_{ctor[2:-2]}_mypy_placeholder"
 
         func_items: Sequence[SymbolNode]
         if isinstance(node.node, OverloadedFuncDef):
@@ -98,14 +98,27 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
                 )
                 continue
             if new_ctor_name is not None:
-                defn._name = new_ctor_name
-                assert defn.name == new_ctor_name
+                __set_func_def_name(defn, new_ctor_name)
 
         if new_ctor_name is not None:
             info.names[new_ctor_name] = info.names[ctor]
 
     if info.get_method("__await__") is not None:
         ctx.api.fail('AsyncObject subclasses must not have "__await__" method', ctx.cls, code=errorcodes.OVERRIDE)
+
+
+def __set_func_def_name(defn: FuncDef, name: str) -> None:
+    if hasattr(defn, "_name"):
+        old_name = defn.name
+        defn._name = name
+        if getattr(defn, "_fullname", None) and defn.fullname.endswith(old_name):
+            prefix, dot, _ = defn.fullname.rpartition(".")
+            if dot:
+                defn._fullname = dot.join([prefix, name])
+            else:
+                defn._fullname = name
+
+        print(defn.name, ",", defn.fullname)
 
 
 def plugin(version: str) -> type[Plugin]:

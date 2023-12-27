@@ -27,6 +27,8 @@ import inspect
 from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
+from typing_extensions import Self
+
 
 def _validate_constructor(func: Any, name: str) -> None:
     if isinstance(func, (staticmethod, classmethod)):
@@ -103,10 +105,7 @@ class AsyncObjectMeta(type):
 class AsyncObject(metaclass=AsyncObjectMeta):
     __slots__ = ()
 
-    if TYPE_CHECKING:
-        __Self = TypeVar("__Self", bound="AsyncObject")
-
-    async def __new__(cls: type[__Self]) -> __Self:  # type: ignore[misc]
+    async def __new__(cls) -> Self:  # type: ignore[misc]
         return object.__new__(cls)
 
     async def __init__(self) -> None:  # type: ignore[misc]

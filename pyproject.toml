@@ -9,7 +9,9 @@ authors = [{name = "FrankySnow9", email = "clairicia.rcj.francis@gmail.com"}]
 requires-python = ">=3.8.1"
 readme = "README.md"
 license-files = { paths = ["LICENSE"] }
-dependencies = []
+dependencies = [
+    "typing-extensions>=4.9.0",
+]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -93,6 +95,7 @@ strict = true
 warn_return_any = false
 enable_error_code = ["ignore-without-code", "unused-awaitable"]
 plugins = [
+  "mypy.plugins.proper_plugin",
   "async_object.contrib.mypy.plugin",
 ]
 

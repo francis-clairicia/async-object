@@ -5,7 +5,7 @@
 groups = ["default", "dev", "flake8", "format", "mypy", "mypy-dev", "test", "tox"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:b4711470dc5c4b595f4c9fdbd624ee97281cc522e90a86f08b5dd6275a291eb7"
+content_hash = "sha256:7f1813679cdd105e440d69591f25c1755db4ad38540ccd4295db3322424cb6c4"
 
 [[package]]
 name = "ast-decompiler"

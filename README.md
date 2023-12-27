@@ -81,8 +81,10 @@ Replace the `main` in the [Usage](#usage) example by this one and run it. You sh
 Obviously, arguments can be given to `__init__` and `__new__`.
 The inheritance logic with "normal" constructors is the same here:
 ```py
+from typing_extensions import Self
+
 class MyObjectOnlyNew(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObjectOnlyNew":
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         self = await super().__new__(cls)
 
         print(args)
@@ -100,7 +102,7 @@ class MyObjectOnlyInit(AsyncObject):
 
 
 class MyObjectBothNewAndInit(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> "MyObjectBothNewAndInit":
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         self = await super().__new__(cls)
 
         print(args)
@@ -216,7 +218,7 @@ async def main() -> None:
 The errors triggered by `__new__` cannot be silenced yet. You can use `# type: ignore[misc]` comment to mask these errors.
 ```py
 class MyObject(AsyncObject):
-    async def __new__(cls) -> "MyObject":  # type: ignore[misc]
+    async def __new__(cls) -> Self:  # type: ignore[misc]
         return await super().__new__(cls)
 
     async def __init__(self) -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from typing_extensions import Self
 
 from async_object import AsyncObject
 
@@ -57,7 +58,7 @@ async def test_subclass_with_arguments_for_dunder_new() -> None:
     class MyObject(AsyncObject):
         myattr_from_new: int
 
-        async def __new__(cls, value: int) -> MyObject:  # type: ignore[misc]
+        async def __new__(cls, value: int) -> Self:  # type: ignore[misc]
             self = await super().__new__(cls)
             self.myattr_from_new = value
             return self
@@ -74,7 +75,7 @@ async def test_subclass_with_custom_dunder_new() -> None:
     # Arrange
 
     class MyObject(AsyncObject):
-        async def __new__(cls, value: int) -> MyObject:  # type: ignore[misc]
+        async def __new__(cls, value: int) -> Self:  # type: ignore[misc]
             self = await super().__new__(cls)
             self.myattr_from_new = value * 2
             return self
