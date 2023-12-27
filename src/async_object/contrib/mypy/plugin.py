@@ -118,8 +118,6 @@ def __set_func_def_name(defn: FuncDef, name: str) -> None:
             else:
                 defn._fullname = name
 
-        print(defn.name, ",", defn.fullname)
-
 
 def plugin(version: str) -> type[Plugin]:
     return AsyncObjectPlugin
