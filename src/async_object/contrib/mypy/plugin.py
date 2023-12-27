@@ -69,14 +69,12 @@ def async_class_instanciation_callback(ctx: FunctionContext) -> Type:
 def async_class_def_callback(ctx: ClassDefContext) -> None:
     info = ctx.cls.info
 
-    for ctor in ("__new__", "__init__"):
+    for ctor in {"__init__"}:
         node = info.names.get(ctor)
         if node is None or node.node is None:
             continue
 
-        new_ctor_name: str | None = None
-        if ctor in {"__init__"}:
-            new_ctor_name = f"__async_{ctor[2:-2]}_mypy_placeholder"
+        new_ctor_name = f"__async_{ctor[2:-2]}_mypy_placeholder"
 
         func_items: Sequence[SymbolNode]
         if isinstance(node.node, OverloadedFuncDef):
@@ -97,11 +95,9 @@ def async_class_def_callback(ctx: ClassDefContext) -> None:
                     code=errorcodes.OVERRIDE,
                 )
                 continue
-            if new_ctor_name is not None:
-                __set_func_def_name(defn, new_ctor_name)
+            __set_func_def_name(defn, new_ctor_name)
 
-        if new_ctor_name is not None:
-            info.names[new_ctor_name] = info.names[ctor]
+        info.names[new_ctor_name] = info.names[ctor]
 
     if info.get_method("__await__") is not None:
         ctx.api.fail('AsyncObject subclasses must not have "__await__" method', ctx.cls, code=errorcodes.OVERRIDE)

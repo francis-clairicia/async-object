@@ -33,13 +33,6 @@ from async_object import AsyncObject
 
 
 class MyObject(AsyncObject):
-    async def __new__(cls) -> "MyObject":
-        self = await super().__new__(cls)
-
-        # Do some async stuff
-
-        return self
-
     async def __init__(self) -> None:
         await super().__init__()
 
@@ -84,8 +77,8 @@ The inheritance logic with "normal" constructors is the same here:
 from typing_extensions import Self
 
 class MyObjectOnlyNew(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
-        self = await super().__new__(cls)
+    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
+        self = super().__new__(cls)
 
         print(args)
         print(kwargs)
@@ -102,8 +95,8 @@ class MyObjectOnlyInit(AsyncObject):
 
 
 class MyObjectBothNewAndInit(AsyncObject):
-    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
-        self = await super().__new__(cls)
+    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
+        self = super().__new__(cls)
 
         print(args)
         print(kwargs)
@@ -120,7 +113,7 @@ class MyObjectBothNewAndInit(AsyncObject):
 ### Inheritance
 Talking about inheritance, there are a few rules to follow:
 - `AsyncObject` or a subclass must appear at least once in the base classes declaration.
-- Non-`AsyncObject` classes can be used as base classes if they do not override `__new__` or `__init__` (in order not to break the [MRO](https://docs.python.org/3/glossary.html#term-method-resolution-order)).
+- Non-`AsyncObject` classes can be used as base classes if they do not override `__init__` (in order not to break the [MRO](https://docs.python.org/3/glossary.html#term-method-resolution-order)).
 - To avoid confusion with [awaitable objects](https://docs.python.org/3/glossary.html#term-awaitable), overriding `__await__` is forbidden.
 
 ### Abstract base classes
@@ -170,7 +163,7 @@ class MyAbstractObject(AsyncABC):
 ```
 
 ## Static type checking: mypy integration
-`mypy` does not like having `async def` for `__new__` and `__init__`, and will not understand `await AsyncObject()`.
+`mypy` does not like having `async def` for `__init__`, and will not understand `await AsyncObject()`.
 
 `async-object` embeds a plugin which helps `mypy` to understand asynchronous constructors.
 
@@ -212,15 +205,4 @@ async def main() -> None:
     reveal_type(coroutine)  # Revealed type is "typing.Coroutine[Any, Any, __main__.MyObject]"
     instance = await coroutine
     reveal_type(instance)  # Revealed type is "__main__.MyObject"
-```
-
-### Caveat/Known issues
-The errors triggered by `__new__` cannot be silenced yet. You can use `# type: ignore[misc]` comment to mask these errors.
-```py
-class MyObject(AsyncObject):
-    async def __new__(cls) -> Self:  # type: ignore[misc]
-        return await super().__new__(cls)
-
-    async def __init__(self) -> None:
-        await super().__init__()
 ```

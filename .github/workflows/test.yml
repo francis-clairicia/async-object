@@ -44,12 +44,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: pdm-project/setup-pdm@v3
         with:
-          submodules: true
-      - name: Setup Python ${{ matrix.python_version }}
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
+          version: '2.11.1'
           python-version: ${{ matrix.python_version }}
       - name: Setup tox
         run: pip install tox>=4.0
