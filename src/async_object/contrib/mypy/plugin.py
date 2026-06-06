@@ -1,5 +1,4 @@
-# -*- coding: Utf-8 -*-
-# Copyright (c) 2023, Francis Clairicia-Rose-Claire-Josephine
+# Copyright 2023-2026, Francis Clairicia-Rose-Claire-Josephine
 #
 #
 """mypy plugin for async-object package.
@@ -17,7 +16,7 @@ from __future__ import annotations
 __all__ = []  # type: list[str]
 
 import importlib.util
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 from mypy import errorcodes
 from mypy.nodes import Decorator, FuncDef, OverloadedFuncDef, SymbolNode, SymbolTableNode, TypeInfo

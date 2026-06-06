@@ -1,9 +1,7 @@
-# -*- coding: Utf-8 -*-
-# Copyright (c) 2023, Francis Clairicia-Rose-Claire-Josephine
+# Copyright 2023-2026, Francis Clairicia-Rose-Claire-Josephine
 #
 #
-"""Package for linter and static type checker extensions
-"""
+"""Package for linter and static type checker extensions"""
 
 from __future__ import annotations
 

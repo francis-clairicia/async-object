@@ -11,8 +11,8 @@ on:
     paths:
       - 'src/**'
       - 'tests/**'
-      - '!**.pyi'
       - 'tox.ini'
+      - 'pylock.toml'
       - 'pyproject.toml'
       - '.github/workflows/test.yml'
   push:
@@ -25,6 +25,7 @@ on:
       - 'tests/**'
       - '!**.pyi'
       - 'tox.ini'
+      - 'pylock.toml'
       - 'pyproject.toml'
       - '.github/workflows/test.yml'
 
@@ -39,16 +40,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2022, macos-12]
-        python_version: ['3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-24.04, windows-2022, macos-14]
+        python_version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        include:
+          - python_version: '3.10'
+            tox_py: py310
+          - python_version: '3.11'
+            tox_py: py311
+          - python_version: '3.12'
+            tox_py: py312
+          - python_version: '3.13'
+            tox_py: py313
+          - python_version: '3.14'
+            tox_py: py314
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: pdm-project/setup-pdm@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
-          version: '2.11.1'
+          check-latest: true
+          pip-install: --group=tox
           python-version: ${{ matrix.python_version }}
-      - name: Setup tox
-        run: pip install tox>=4.0
+      - name: mypy checks
+        run: tox run -f mypy
       - name: Launch tests
-        run: tox run -f py$(echo ${{ matrix.python_version }} | tr -d .)
+        run: tox run -f ${{ matrix.tox_py }}

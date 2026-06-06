@@ -1,10 +1,9 @@
-# -*- coding: Utf-8 -*-
-
 from __future__ import annotations
 
 import abc
 import inspect
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 import pytest
 
@@ -103,7 +102,7 @@ def test_constructor_overwrite_error(attr: str) -> None:
     class MyObject(AsyncObject):
         pass
 
-    with pytest.raises(TypeError, match=r"^{!r} must be a coroutine function \(using 'async def'\)$".format(attr)):
+    with pytest.raises(TypeError, match=rf"^{attr!r} must be a coroutine function \(using 'async def'\)$"):
         setattr(MyObject, attr, __new_func__)
 
 
@@ -129,7 +128,7 @@ def test_attribute_cannot_be_deleted(attr: str) -> None:
     class MyObject(AsyncObject):
         pass
 
-    with pytest.raises(TypeError, match=r"^{}\(\) cannot be deleted$".format(attr)):
+    with pytest.raises(TypeError, match=rf"^{attr}\(\) cannot be deleted$"):
         delattr(MyObject, attr)
 
 
