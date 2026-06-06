@@ -1,5 +1,4 @@
-# -*- coding: Utf-8 -*-
-# Copyright (c) 2023, Francis Clairicia-Rose-Claire-Josephine
+# Copyright 2023-2026, Francis Clairicia-Rose-Claire-Josephine
 #
 #
 """async-object let you write classes with async def __init__.
@@ -13,19 +12,20 @@ __all__ = ["AsyncABC", "AsyncABCMeta", "AsyncObject", "AsyncObjectMeta"]
 
 __author__ = "FrankySnow9"
 __contact__ = "clairicia.rcj.francis@gmail.com"
-__copyright__ = "Copyright (c) 2023, Francis Clairicia-Rose-Claire-Josephine"
+__copyright__ = "Copyright 2023-2026, Francis Clairicia-Rose-Claire-Josephine"
 __credits__ = ["FrankySnow9"]
 __deprecated__ = False
 __email__ = "clairicia.rcj.francis@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "FrankySnow9"
 __status__ = "Production"
-__version__ = "2.0.0"
+__version__ = "3.0.0.dev1"
 
 import abc
 import inspect
+from collections.abc import Callable
 from functools import partialmethod
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 
 def _validate_constructor(func: Any, name: str) -> None:
